@@ -42,7 +42,24 @@ connection.connect(function(err) {
   
 const myArrayFor = [];
 
-const selectEmployeeTitle = `SELECT * FROM employee_cms.employee ee JOIN employee_cms.role role on ee.role_id = role.id`
+const selectEmployeeTitle = `SELECT 
+ee.id as 'ID',
+ee.first_name as 'First Name',
+ee.last_name as 'Last Name',
+role.title as 'Title',
+dept.name as 'Department',
+role.salary as 'Salary',
+CONCAT (manager.first_name, " ", manager.last_name) as 'Manager'
+
+FROM employee_cms.employee ee 
+JOIN employee_cms.role role on ee.role_id = role.id
+JOIN employee_cms.department dept on role.department_id = dept.id
+LEFT JOIN employee_cms.employee manager on ee.manager_id = manager.id`;
+
+
+const viewDepartments = `SELECT * FROM employee_cms.department`;
+const viewRole = `SELECT * FROM employee_cms.role`;
+
 
 connection.query(selectEmployeeTitle, function (err, results,fields){
 
@@ -50,9 +67,8 @@ connection.query(selectEmployeeTitle, function (err, results,fields){
     console.log(err)
     
     results.forEach(el => {
-        myArrayFor.push({id: el.id, first: el.first_name, Last: el.last_name, Role: el.role_id, Title:el.title})
-        
-    })
+        myArrayFor.push(el)
+         })
     console.table(myArrayFor)
 
   });
