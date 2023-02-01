@@ -16,7 +16,9 @@ function executeQuery(queryStatement) {
     results.forEach((el) => {
       myArrayFor.push(el);
     });
-    return console.table(myArrayFor);
+    // return myArrayFor;
+    console.table(myArrayFor);
+    
   });
 }
 

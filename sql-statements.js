@@ -4,7 +4,7 @@ and they are exported to other associated js files and functions. */
 const actionSQL = require("./sql-action")
 
 //Retrieves Show Employee
-const selectEmployeeTitle = `SELECT 
+const showEmployees = `SELECT 
 ee.id as 'ID',
 ee.first_name as 'First Name',
 ee.last_name as 'Last Name',
@@ -25,9 +25,13 @@ const viewDepartments = `SELECT * FROM employee_cms.department`;
 //Retrieves Show Roles 
 const viewRole = `SELECT * FROM employee_cms.role`;
 
+//Retrieves List of Employee Only for Modify Employee Function 
+const employeeChoices = `SELECT id FROM employee_cms.employee`;
+
+
 //Adds a new Department 
 function addDepartment (department_name) {
-   var addDepartmentSQL = `INSERT INTO employee_cms.department (name) VALUES ('${department_name}');`
+   var addDepartmentSQL = `INSERT INTO employee_cms.department (name) VALUES (${department_name});` 
    var consoleStatement = `Added a new department named: ${department_name}`
     // return addRoleSQL, consoleStatement;
     actionSQL(addDepartmentSQL,consoleStatement)
@@ -57,4 +61,4 @@ function UpdateEmpRole (employeeId, NewRoleID) {
 
 
 
-module.exports = {selectEmployeeTitle, viewDepartments, viewRole, addDepartment, addRole, addEmployee, UpdateEmpRole}
+module.exports = {showEmployees, viewDepartments, viewRole, addDepartment, addRole, addEmployee, UpdateEmpRole, employeeChoices}

@@ -6,7 +6,7 @@ var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
   //What about DB name here?
-  password : 'Mkonji2009!'
+  password : 'password'
 });
 
 //Create a connection
@@ -15,7 +15,7 @@ connection.connect(function(err) {
       console.error('error connecting: ' + err.stack);
       return;
     }
-    console.log('connected as id ' + connection.threadId);
+    // console.log('connected as id ' + connection.threadId);
     return connection
     
   });
