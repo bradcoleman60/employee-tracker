@@ -1,7 +1,8 @@
-/* This file contains only SQL statements used in this app.  All SQL statements will be found below 
+/* This file contains Select SQL statements used in this app.  All SQL statements will be found below 
 and they are exported to other associated js files and functions. */
 
 const actionSQL = require("./sql-action")
+const connection = require("./connection");
 
 //Retrieves Show Employee
 const showEmployees = `SELECT 
@@ -28,37 +29,4 @@ const viewRole = `SELECT * FROM employee_cms.role`;
 //Retrieves List of Employee Only for Modify Employee Function 
 const employeeChoices = `SELECT id FROM employee_cms.employee`;
 
-
-//Adds a new Department 
-function addDepartment (department_name) {
-   var addDepartmentSQL = `INSERT INTO employee_cms.department (name) VALUES (${department_name});` 
-   var consoleStatement = `Added a new department named: ${department_name}`
-    // return addRoleSQL, consoleStatement;
-    actionSQL(addDepartmentSQL,consoleStatement)
-};
-
-//Add a new role
-function addRole(name, department, salary) {
-    const addRoleSQl = `INSERT INTO employee_cms.role (title, department_id, salary) VALUES ('${name}','${department}','${salary}');`;
-    const consoleStatement = `Added role ${name} with a salary of ${salary} to the ${department} department`;
-    actionSQL(addRoleSQl,consoleStatement)
-    };
-
-//Add a new employee
-function addEmployee (first_name, last_name,role_id, manager_id){
-    const addEmployeeSQL = `INSERT INTO employee_cms.employee (first_name, last_name, role_id, manager_id) VALUES ('${first_name}','${last_name}','${role_id}',${manager_id});`;
-    const consoleStatement = `Added new employee: ${first_name} ${last_name} with a role ID of ${role_id} with a manager of ${manager_id}`;
-    actionSQL(addEmployeeSQL,consoleStatement)
-}
-
-//Update employee role
-function UpdateEmpRole (employeeId, NewRoleID) {
-    const UpdateEmpRoleSQL = `UPDATE employee_cms.employee SET role_id = ${NewRoleID} WHERE id = ${employeeId};`;
-    const consoleStatement = `Updated employee ID: ${employeeId} to new role of ${NewRoleID}`;
-    actionSQL(UpdateEmpRoleSQL,consoleStatement)
-}
-
-
-
-
-module.exports = {showEmployees, viewDepartments, viewRole, addDepartment, addRole, addEmployee, UpdateEmpRole, employeeChoices}
+module.exports = {showEmployees, viewDepartments, viewRole}

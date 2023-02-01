@@ -6,6 +6,9 @@ const selectChoice = require("./sql-select-choices");
 //Require sql-statements
 const sqlStatements = require("./sql-statements");
 
+//Require sql-action
+const sqlAction = require("./sql-action")
+
 //Require select.js file
 const executeQuery = require("./sql-select");
 
@@ -41,13 +44,13 @@ function askquestion() {
     if (answers.view === "View Roles") executeQuery(sqlStatements.viewRole);
     if (answers.view === "View All Employees")
       executeQuery(sqlStatements.showEmployees);
-    if (answers.view === "Add New Department") addDepartmentQust();
+    if (answers.view === "Add New Department") addDepartmentQuest();
     if (answers.view === "Add New Role") addRoleQuest();
     if (answers.view === "Add New Employee") addNewEmployeeQuest();
   });
 }
 
-function addDepartmentQust() {
+function addDepartmentQuest() {
   inquirer
     .prompt({
       type: "item",
@@ -55,7 +58,7 @@ function addDepartmentQust() {
       message: "Enter the name of the Department you want to add",
     })
     .then((answers) => {
-      sqlStatements.addDepartment(answers.departmentName);
+      sqlAction.addDepartment(answers.departmentName);
       askquestion();
     });
 }
@@ -81,7 +84,7 @@ function addRoleQuest() {
     ])
     .then((answers) => {
 
-      sqlStatements.addRole(
+      sqlAction.addRole(
         answers.roleName,
         answers.roleDepartment,
         answers.roleSalary
@@ -117,7 +120,7 @@ function addNewEmployeeQuest() {
       ])
       .then((answers) => {
   
-        sqlStatements.addEmployee(
+        sqlAction.addEmployee(
           answers.firstName,
           answers.lastName,
           answers.employeeRole,
@@ -145,3 +148,51 @@ askquestion();
 // executeQuery(sqlStatements.showEmployeeTitle);
 // executeQuery(sqlStatements.viewDepartments);
 // executeQuery(sqlStatements.viewRole);
+
+
+
+
+
+
+////TEST QUERY FOR AN ARRAY OF ONLY VALUES IN THE NAME FIELD
+function testQuery(queryStatement) {
+    const myArrayFor = [];
+  
+    connection.query({ sql: 'SELECT first_name FROM employee_cms.employee', rowsAsArray: true}, function (err, results, fields) {
+    // connection.query('SELECT * FROM employee_cms.employee', function (err, results, fields) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      console.log(results)
+
+      let arr = results;
+      let finalObj = []
+
+      for (let i=0; i < arr.length; i++){
+        finalObj.push(arr[i])
+      }
+
+      console.log(finalObj)
+    //   console.log(Object.values(results));
+    //   console.log(results.reduce(function(result, current){
+    //         return Object.assign(result,current);
+    //     }, {}))
+    //     console.log(Object.assign({}, ...results))
+
+      
+    //   results.forEach((el) => {
+    //     myArrayFor.push(el);
+    //   });
+      // return myArrayFor;
+    //   console.log(myArrayFor);
+    //   console.log(myArrayFor.reduce(function(result, current){
+    //     return Object.assign(result,current);
+    //   }, {}))
+      
+      
+    });
+  }
+
+//   testQuery()
