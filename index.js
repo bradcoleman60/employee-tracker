@@ -130,7 +130,7 @@ function addNewEmployeeQuest() {
       });
   }
 
-askquestion();
+// askquestion();
 ///////////////////////////////////////////////////////////////////////////
 
 // selectChoice(sqlStatements.employeeChoices)
@@ -158,7 +158,7 @@ askquestion();
 function testQuery(queryStatement) {
     const myArrayFor = [];
   
-    connection.query({ sql: 'SELECT first_name FROM employee_cms.employee', rowsAsArray: true}, function (err, results, fields) {
+    connection.query({ sql: 'SELECT CONCAT (first_name, " ", last_name) as name FROM employee_cms.employee', rowsAsArray: true}, function (err, results, fields) {
     // connection.query('SELECT * FROM employee_cms.employee', function (err, results, fields) {
       if (err) {
         console.log(err);
@@ -167,32 +167,22 @@ function testQuery(queryStatement) {
 
       console.log(results)
 
-      let arr = results;
-      let finalObj = []
+      newArray = results.flat(1)
 
-      for (let i=0; i < arr.length; i++){
-        finalObj.push(arr[i])
-      }
+      const questionsX = [
+        {
+          type: "list",
+          name: "view",
+          message: "Pick an employee's Name",
+          choices: newArray,
+        },
+      ];
 
-      console.log(finalObj)
-    //   console.log(Object.values(results));
-    //   console.log(results.reduce(function(result, current){
-    //         return Object.assign(result,current);
-    //     }, {}))
-    //     console.log(Object.assign({}, ...results))
+      inquirer.prompt(questionsX)
 
+   
       
-    //   results.forEach((el) => {
-    //     myArrayFor.push(el);
-    //   });
-      // return myArrayFor;
-    //   console.log(myArrayFor);
-    //   console.log(myArrayFor.reduce(function(result, current){
-    //     return Object.assign(result,current);
-    //   }, {}))
-      
-      
-    });
-  }
+      })};
 
-//   testQuery()
+
+  testQuery()
