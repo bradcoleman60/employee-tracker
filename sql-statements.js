@@ -15,10 +15,10 @@ role.salary as 'Salary',
 CASE WHEN ISNULL(CONCAT (manager.first_name, " ", manager.last_name)) THEN "n/a" 
     ELSE CONCAT (manager.first_name, " ", manager.last_name) END as 'Manager'
 
-FROM employee_cms.employee ee 
-JOIN employee_cms.role role on ee.role_id = role.id
-JOIN employee_cms.department dept on role.department_id = dept.id
-LEFT JOIN employee_cms.employee manager on ee.manager_id = manager.id`;
+FROM employee ee 
+JOIN role on ee.role_id = role.id
+JOIN department dept on department_id = dept.id
+LEFT JOIN employee manager on ee.manager_id = manager.id`;
 
 //Retrieves Show Departments 
 const viewDepartments = `SELECT * FROM employee_cms.department`;

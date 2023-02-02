@@ -7,7 +7,7 @@ const selectChoice = require("./sql-select-choices");
 const sqlStatements = require("./sql-statements");
 
 //Require sql-action
-const sqlAction = require("./sql-action")
+const sqlAction = require("./sql-action");
 
 //Require select.js file
 const executeQuery = require("./sql-select");
@@ -18,16 +18,21 @@ const cTable = require("console.table");
 // Require Database Connection
 const connection = require("./connection");
 
-///////////////////////////////////////////////////
+const getChoices = require("./sql-get-choices");
+const getDepartmentChoices = require("./sql-get-choices");
+
+//Objtect that contains the main menu
 const choiceObject = {
   viewDepartments: "View Department",
   viewRole: "View Roles",
   showEmployees: "View All Employees",
-  addDepartment: "Add New Department",
-  addRole: "Add New Role",
-  addNewEmployee: "Add New Employee"
+  addDepartmentQuest: "Add New Department",
+  addRoleQuest: "Add New Role",
+  // testQuery: "Add New Role",
+  addNewEmployeeQuest: "Add New Employee",
+  separator: new inquirer.Separator(),
+  quit: "Quit",
 };
-
 const questions = [
   {
     type: "list",
@@ -38,18 +43,17 @@ const questions = [
 ];
 
 function askquestion() {
-  inquirer.prompt(questions).then((answers) => {
-    if (answers.view === "View Department")
-      executeQuery(sqlStatements.viewDepartments);
-    if (answers.view === "View Roles") executeQuery(sqlStatements.viewRole);
-    if (answers.view === "View All Employees")
-      executeQuery(sqlStatements.showEmployees);
-    if (answers.view === "Add New Department") addDepartmentQuest();
-    if (answers.view === "Add New Role") addRoleQuest();
-    if (answers.view === "Add New Employee") addNewEmployeeQuest();
-  });
-}
-
+  inquirer.prompt(questions).then(({ view }) => {
+    console.log(view)
+    var SQLStatement = Object.keys(choiceObject).find((key) => choiceObject[key] === view)
+    console.log(SQLStatement)
+     if (SQLStatement === "viewRole" || SQLStatement === "showEmployees" || SQLStatement === "viewDepartments"){
+      executeQuery(sqlStatements[SQLStatement])
+    } 
+    else eval(SQLStatement + '();');
+  }
+  )}
+//Add function to take in user input from Inquirer to add a new department 
 function addDepartmentQuest() {
   inquirer
     .prompt({
@@ -62,28 +66,46 @@ function addDepartmentQuest() {
       askquestion();
     });
 }
+var DepartmentArray =[]
+
+function getTHEchoice (){
+  connection.query({sql: 'SELECT id FROM department', rowsAsArray: true},function (err, results, fields) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    DepartmentArray = results.flat(1)
+  
+    return DepartmentArray
+  })
+
+}
+
+getTHEchoice()
 
 function addRoleQuest() {
-  inquirer
-    .prompt([
+
+  var questionsForNewRole = [
       {
         type: "item",
         name: "roleName",
-        message: "Enter the name of the new Role you want to add"
+        message: "Enter the name of the new Role you want to add",
       },
       {
-        type: "item",
+        type: "list",
         name: "roleDepartment",
-        message: "Enter the department number for this role"
+        message: "Enter the department number for this role",
+        choices: DepartmentArray
       },
       {
         type: "item",
         name: "roleSalary",
-        message: "Enter the salary of this new role"
+        message: "Enter the salary of this new role",
       }
-    ])
-    .then((answers) => {
-
+    ]
+  // }
+    inquirer.prompt(questionsForNewRole).then((answers) => {
       sqlAction.addRole(
         answers.roleName,
         answers.roleDepartment,
@@ -91,98 +113,90 @@ function addRoleQuest() {
       );
       askquestion();
     });
+  
 }
 
-
-function addNewEmployeeQuest() {
-    inquirer
-      .prompt([
-        {
-          type: "item",
-          name: "firstName",
-          message: "Enter the First name of the new employee"
-        },
-        {
-          type: "item",
-          name: "lastName",
-          message: "Enter the Last name of the new employee"
-        },
-        {
-          type: "item",
-          name: "employeeRole",
-          message: "Enter the role ID for this employee"
-        },
-        {
+//Function to Add new Employee
+function addNewEmployeeQuest(queryStatement) {
+  inquirer
+    .prompt([
+      {
+        type: "item",
+        name: "firstName",
+        message: "Enter the First name of the new employee",
+      },
+      {
+        type: "item",
+        name: "lastName",
+        message: "Enter the Last name of the new employee",
+      },
+      {
+        type: "item",
+        name: "employeeRole",
+        message: "Enter the role ID for this employee",
+      },
+      {
         type: "item",
         name: "employeeManager",
-        message: "Enter the new employee's manager's ID"
-        }
-      ])
-      .then((answers) => {
-  
-        sqlAction.addEmployee(
-          answers.firstName,
-          answers.lastName,
-          answers.employeeRole,
-          answers.employeeManager
-        );
-        askquestion();
-      });
-  }
+        message: "Enter the new employee's manager's ID",
+      },
+    ])
+    .then((answers) => {
+      sqlAction.addEmployee(
+        answers.firstName,
+        answers.lastName,
+        answers.employeeRole,
+        answers.employeeManager
+      );
+      askquestion();
+    });
+}
 
-// askquestion();
-///////////////////////////////////////////////////////////////////////////
-
-// selectChoice(sqlStatements.employeeChoices)
-// console.log(employeeChoices)
-// console.log(sqlStatements);
-// console.log(employeeChoices);
-
-//These are SQL Action statements (add and update to various tables)
-// sqlStatements.addDepartment('Facilities');
-// sqlStatements.addRole('Marketing Rep',6,165000)
-// sqlStatements.addEmployee('Joanne', 'Collins',6, null)
-// sqlStatements.UpdateEmpRole(9, 9)
-
-//These are SQL query statements that fetch data and create tables of requested date
-// executeQuery(sqlStatements.showEmployeeTitle);
-// executeQuery(sqlStatements.viewDepartments);
-// executeQuery(sqlStatements.viewRole);
+askquestion();
 
 
-
-
-
-
-////TEST QUERY FOR AN ARRAY OF ONLY VALUES IN THE NAME FIELD
+////TEST QUERY FOR AN ARRAY OF ONLY VALUES IN THE NAME FIELD////////////////////////////////////////////////////////
+// function addRoleQuest(queryStatement) {
 function testQuery(queryStatement) {
-    const myArrayFor = [];
-  
-    connection.query({ sql: 'SELECT CONCAT (first_name, " ", last_name) as name FROM employee_cms.employee', rowsAsArray: true}, function (err, results, fields) {
-    // connection.query('SELECT * FROM employee_cms.employee', function (err, results, fields) {
+  // const myArrayFor = [];
+
+  connection.query(
+    {
+      sql: 'SELECT CONCAT (first_name, " ", last_name, " (id:",id,")" ) as name FROM employee_cms.employee',
+      rowsAsArray: true,
+    },
+    function (err, results, fields) {
       if (err) {
         console.log(err);
         return;
       }
 
-      console.log(results)
-
-      newArray = results.flat(1)
+      newArray = results.flat(1);
 
       const questionsX = [
         {
           type: "list",
           name: "view",
           message: "Pick an employee's Name",
+          // choices: otherFile.bradX([]),
           choices: newArray,
         },
       ];
 
-      inquirer.prompt(questionsX)
+      inquirer.prompt(questionsX).then((answers) => {
+        console.log(answers);
+      });
+    }
+  );
+}
 
-   
-      
-      })};
+// testQuery()
+/////////////////////////////////////////////////////////////////////////////////////////////////
+//Function to quit the Inquirer
+function quit() {
+  connection.end();
+  console.log("Thanks for using the Employee CMS System");
+}
 
 
-  testQuery()
+
