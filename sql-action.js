@@ -16,7 +16,7 @@ function addDepartment (department_name) {
 
 //Add a new role
 function addRole(name, department, salary) {
-  connection.query(`INSERT INTO employee_cms.role (title, department_id, salary) VALUES ( ? , ? ,?);`, [name, department,salary], function (err, results, fields) {
+  connection.query(`INSERT INTO employee_cms.role (title, department_id, salary) VALUES ( ? , (SELECT id FROM department WHERE name = ?), ?);`, [name, department,salary], function (err, results, fields) {
     if (err) {
       console.log(err);
       return;

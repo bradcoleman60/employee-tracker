@@ -69,7 +69,7 @@ function addDepartmentQuest() {
 var DepartmentArray =[]
 
 function getTHEchoice (){
-  connection.query({sql: 'SELECT id FROM department', rowsAsArray: true},function (err, results, fields) {
+  connection.query({sql: 'SELECT name FROM department', rowsAsArray: true},function (err, results, fields) {
     if (err) {
       console.log(err);
       return;
