@@ -36,11 +36,13 @@ function addEmployee (first_name, last_name,role_id, manager_id){
   
 //Update employee role
 function UpdateEmpRole (employeeId, NewRoleID) {
-  connection.query(`UPDATE employee_cms.employee SET role_id = ? WHERE id = ? ;`, [employeeId, NewRoleID], function (err, results, fields) {
+  connection.query(`UPDATE employee_cms.employee SET role_id = ? WHERE id = ? ;`, [NewRoleID,employeeId], function (err, results, fields) {
     if (err) {
       console.log(err);
       return;
-    } console.log(`Updated employee ID: ${employeeId} to new role of ${NewRoleID}`)
+    } 
+    console.log(typeof employeeID)
+    console.log(`Updated employee ID: ${employeeId} to new role of ${NewRoleID}`)
 })}
 
   module.exports = {addDepartment, addRole,addEmployee,UpdateEmpRole};

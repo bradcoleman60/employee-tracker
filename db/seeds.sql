@@ -11,10 +11,10 @@ INSERT INTO role (title, department_id, salary) VALUES
     ('Salesperson', 2, 150000),
     ('Lead Engineer', 1, 325000),
     ('Software Engineer' ,1, 275000),
-    ('Chief Financial Officer', 3, 350000),
-    ('Accounting Manager', 3, 125000),
-    ('Chief Legal Office', 4 , 275000),
-    ('Lawyer', 4 , 180000);
+    ('Chief Financial Officer', 4, 350000),
+    ('Accounting Manager', 4, 125000),
+    ('Chief Legal Office', 3 , 275000),
+    ('Lawyer', 3 , 180000);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES
     ('Mary','Jones' ,1,null),

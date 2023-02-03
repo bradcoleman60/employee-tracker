@@ -18,8 +18,8 @@ const cTable = require("console.table");
 // Require Database Connection
 const connection = require("./connection");
 
-const getChoices = require("./sql-get-choices");
-const getDepartmentChoices = require("./sql-get-choices");
+// const getChoices = require("./sql-get-choices");
+// const getDepartmentChoices = require("./sql-get-choices");
 
 //Objtect that contains the main menu
 const choiceObject = {
@@ -30,6 +30,7 @@ const choiceObject = {
   addRoleQuest: "Add New Role",
   // testQuery: "Add New Role",
   addNewEmployeeQuest: "Add New Employee",
+  updateEmployeeQuest: "Update an existing employee",
   separator: new inquirer.Separator(),
   quit: "Quit",
 };
@@ -44,9 +45,9 @@ const questions = [
 
 function askquestion() {
   inquirer.prompt(questions).then(({ view }) => {
-    console.log(view)
+    // console.log(view)
     var SQLStatement = Object.keys(choiceObject).find((key) => choiceObject[key] === view)
-    console.log(SQLStatement)
+    // console.log(SQLStatement)
      if (SQLStatement === "viewRole" || SQLStatement === "showEmployees" || SQLStatement === "viewDepartments"){
       executeQuery(sqlStatements[SQLStatement])
     } 
@@ -71,8 +72,7 @@ var DepartmentArray =[]
 var ManagerArray =[]
 var roleArray = []
 
-
-function getTHEchoice (){
+function getDepartmentChoices (){
   connection.query({sql: 'SELECT name FROM department', rowsAsArray: true},function (err, results, fields) {
     if (err) {
       console.log(err);
@@ -95,6 +95,8 @@ function getManagerChoices (){
       return;
     }
 
+    
+
     ManagerArray = results.flat(1)
     // console.log(ManagerArray)
     return ManagerArray
@@ -116,22 +118,20 @@ function getRoleChoices (){
 }  
 
 
-getTHEchoice()
+getDepartmentChoices()
 getManagerChoices()
 getRoleChoices()
-
-
 
 function addRoleQuest() {
 
   var questionsForNewRole = [
       {
-        type: "item",
+        type: "input",
         name: "roleName",
         message: "Enter the name of the new Role you want to add",
       },
       {
-        type: "list",
+        type: "input",
         name: "roleDepartment",
         message: "Enter the department number for this role",
         choices: DepartmentArray
@@ -159,12 +159,12 @@ function addNewEmployeeQuest() {
   inquirer
     .prompt([
       {
-        type: "item",
+        type: "input",
         name: "firstName",
         message: "Enter the First name of the new employee",
       },
       {
-        type: "item",
+        type: "input",
         name: "lastName",
         message: "Enter the Last name of the new employee",
       },
@@ -198,46 +198,46 @@ function addNewEmployeeQuest() {
     });
 }
 
+function updateEmployeeQuest (){
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "employeeName",
+        message: "Which employee do you want to update?",
+        choices: ManagerArray
+      },
+      {
+        type: "list",
+        name: "newRole",
+        message: "Select the new role for this employee",
+        choices: roleArray
+      },
+    ])
+    .then((answers) => {
+      var employeeString = answers.employeeName
+      var employeeID = parseInt(employeeString.slice(employeeString.indexOf("(")+4, employeeString.length-1))
+
+      var roleString = answers.newRole
+      var roleID = parseInt(roleString.slice(roleString.indexOf("(")+4, roleString.length-1))
+      console.log(employeeID),
+      console.log(roleID)
+
+      sqlAction.UpdateEmpRole(
+        employeeID,
+        roleID
+        
+      );
+      askquestion();
+
+    })
+
+}
+
+
 askquestion();
 
 
-////TEST QUERY FOR AN ARRAY OF ONLY VALUES IN THE NAME FIELD////////////////////////////////////////////////////////
-// function addRoleQuest(queryStatement) {
-function testQuery(queryStatement) {
-  // const myArrayFor = [];
-
-  connection.query(
-    {
-      sql: 'SELECT CONCAT (first_name, " ", last_name, " (id:",id,")" ) as name FROM employee_cms.employee',
-      rowsAsArray: true,
-    },
-    function (err, results, fields) {
-      if (err) {
-        console.log(err);
-        return;
-      }
-
-      newArray = results.flat(1);
-
-      const questionsX = [
-        {
-          type: "list",
-          name: "view",
-          message: "Pick an employee's Name",
-          // choices: otherFile.bradX([]),
-          choices: newArray,
-        },
-      ];
-
-      inquirer.prompt(questionsX).then((answers) => {
-        console.log(answers);
-      });
-    }
-  );
-}
-
-// testQuery()
-/////////////////////////////////////////////////////////////////////////////////////////////////
 //Function to quit the Inquirer
 function quit() {
   connection.end();
