@@ -18,7 +18,8 @@ CASE WHEN ISNULL(CONCAT (manager.first_name, " ", manager.last_name)) THEN "n/a"
 FROM employee ee 
 JOIN role on ee.role_id = role.id
 JOIN department dept on department_id = dept.id
-LEFT JOIN employee manager on ee.manager_id = manager.id`;
+LEFT JOIN employee manager on ee.manager_id = manager.id
+ORDER BY ee.id asc`;
 
 //Retrieves Show Departments 
 const viewDepartments = `SELECT * FROM employee_cms.department`;

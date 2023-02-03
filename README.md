@@ -1,26 +1,5 @@
 # employee-tracker
 
-
-GIVEN a command-line application that accepts user input
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# team-profile-genterator
-
 # **Table of Contents**
 1. [Description](#description)
 2. [Testing](#testing)
@@ -31,32 +10,97 @@ GIVEN a command-line application that accepts user input
 
 # **Description**
 
-The goal of this project was to create an index.html generator using Node.js and the command line.   This required the use of a NPM package - inquirer.    
+The goal of this project was to create a command line application to show and update an employee contact system. When launched the user is presented with a main menu to either view one of three reports (view departments, view roles or view employees) or to perform one of 4 actions (add new department, add new role, add a new employee or update an employee's role). This application is connected to a MySQL database using the NPM MySql2 package.  
 
-This project is executed solely in the command line interface.  The ultimate output is an index.html file.  Additionally, this project required the used of Test Driven Development (TDD). I used an NPM package - Jest to execute a series of tests to ensure that code was then developed so that all tests passed.  
+Below is a screen shot of the main menu,
 
-Below is a screen shot of the sample index.html page and the screen shot of the tests that all passed. 
+![screenshot](./assets/sh_one.jpg)
 
-![screenshot](./assets/screen_shot.jpg)
+Below is a screen shot of the employee table that shows role, department, salary and manager.  The SQL query that generates this table is shown in the code high lights below.  
 
-
-![screenshot](./assets/screenShot2.jpg)
+![screenshot](./assets/sh_two.jpg)
 
 
 Link to Demonstration Video of how this Generator Works:
 
-https://app.vidcast.io/share/e9ce3bd3-5ee6-4b2d-9fee-15ca60460d03
+https://app.vidcast.io/share/c5b7ad80-6625-47ba-a1c6-4dcca6114933
 
 
 # **Highlighted Code Example**
 
-The following is code that I created that I would like to highlight.  This highlights the use the Node inquirer package and two functions that allowed me to loop through the questions if additionally entries were desired by the manager.  
+The following is code that I created that I would like to highlight.  
+
+In this first block I created an object of the list that I pass to the NPM Inquirer Prompt to populate the list of views or actions the user can select from. I did this in order to also have access to the associated object key that represents the function that is used to handle the respective request.  Additionally, I would highlight that I used the eval method in order to use a variable to invoke a function. 
+
+```
+//Object that contains the main menu
+const choiceObject = {
+  viewDepartments: "View Department",
+  viewRole: "View Roles",
+  showEmployees: "View All Employees",
+  addDepartmentQuest: "Add New Department",
+  addRoleQuest: "Add New Role",
+  addNewEmployeeQuest: "Add New Employee",
+  updateEmployeeQuest: "Update an existing employee",
+  // separator: new inquirer.Separator(),
+  quit: "Quit",
+  // separator1: new inquirer.Separator(),
+};
+const questions = [
+  {
+    type: "list",
+    name: "view",
+    message: "What what would you like to do?",
+    pageSize: 10,
+    choices: Object.values(choiceObject),
+  },
+];
+
+/* This function displays the main menu that the user can select from.  Depending on the answer selected 
+this function either invokes the execute Query function and passes the name of the sql query to return a 
+report to the console log or invokes on of 4 additional functions below to perform an action 
+(add department, add role, add employee or modify an employee) */
+async function askquestion() {
+  inquirer.prompt(questions).then(async ({ view }) => {
+    var SQLStatement = Object.keys(choiceObject).find(
+      (key) => choiceObject[key] === view
+    );
+    if (
+      SQLStatement === "viewRole" ||
+      SQLStatement === "showEmployees" ||
+      SQLStatement === "viewDepartments"
+    ) {
+      await executeQuery(sqlStatements[SQLStatement]);
+      await continueOn();
+      // await askquestion();
+    }
+    //The eval method is used to variable to invoke a function
+    else eval(SQLStatement + "();");
+  });
+}
 
 ```
 
+The following code is a SQL query that joins three tables in order to obtained the required fields.  Note that I even joined the main table on itself in order to retrieve the managers name.  Additionally, I used a CASE statement to change any values that were "NULL" to "n/a" for a better presentation. 
 
 ```
+//Retrieves Show Employee
+const showEmployees = `SELECT 
+ee.id as 'ID',
+ee.first_name as 'First Name',
+ee.last_name as 'Last Name',
+role.title as 'Title',
+dept.name as 'Department',
+role.salary as 'Salary',
+CASE WHEN ISNULL(CONCAT (manager.first_name, " ", manager.last_name)) THEN "n/a" 
+    ELSE CONCAT (manager.first_name, " ", manager.last_name) END as 'Manager'
 
+FROM employee ee 
+JOIN role on ee.role_id = role.id
+JOIN department dept on department_id = dept.id
+LEFT JOIN employee manager on ee.manager_id = manager.id
+ORDER BY ee.id asc`;
+```
 
 # **Testing** 
 
@@ -64,14 +108,14 @@ To test to ensure the code rendered the desired output I iterated a series of te
 
 | User Acceptance Criteria | Test Result | 
 | ------------- |:-------------| 
-|1. WHEN I start the application THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role  |**Completed**.  The   |
-|2. WHEN I choose to view all departments THEN I am presented with a formatted table showing department names and department ids   |**Completed**.  The     |
-|3. WHEN I choose to view all roles THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role     |**Completed**.  The      |
-|4. WHEN I choose to view all employees THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to  |**Completed**.  The     |
-|5. WHEN I choose to add a department THEN I am prompted to enter the name of the department and that department is added to the database  |**Completed**.  The     |
-|6. WHEN I choose to add a role THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database    |**Completed**.  The   |
-|7. WHEN I choose to add an employee THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database   |**Completed**.  The    |
-|8.WHEN I choose to update an employee role THEN I am prompted to select an employee to update and their new role and this information is updated in the database  | **Completed**.  The   |
+|1. WHEN I start the application THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role  |**Completed**.  All items are presented at the start of the application  |
+|2. WHEN I choose to view all departments THEN I am presented with a formatted table showing department names and department ids   |**Completed**.  The table is presented.     |
+|3. WHEN I choose to view all roles THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role     |**Completed**.  The table is presented.      |
+|4. WHEN I choose to view all employees THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to  |**Completed**.  The table is presented.      |
+|5. WHEN I choose to add a department THEN I am prompted to enter the name of the department and that department is added to the database  |**Completed**.  The prompts are presented and the answers are sent to the sql database for proper handling.      |
+|6. WHEN I choose to add a role THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database    |**Completed**.  The prompts are presented and the answers are sent to the sql database for proper handling.   |
+|7. WHEN I choose to add an employee THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database   |**Completed**.  The prompts are presented and the answers are sent to the sql database for proper handling.    |
+|8.WHEN I choose to update an employee role THEN I am prompted to select an employee to update and their new role and this information is updated in the database  | **Completed**.  The prompts are presented and the answers are sent to the sql database for proper handling.   |
 
 
 # **Technology Used and Credits**
@@ -85,6 +129,7 @@ I used many useful references in completing this project including the following
 | <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> | [https://developer.mozilla.org/en-US/docs/Learn/JavaScript](https://developer.mozilla.org/en-US/docs/Learn/JavaScript) |
 | <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white"> | [https://nodejs.org/en/](https://nodejs.org/en/) |
 | <img src="https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white"> | [https://api.jquery.com/](https://api.jquery.com/) |
+| <img src="https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white"> | [https://dev.mysql.com/doc/refman/8.0/en/](https://dev.mysql.com/doc/refman/8.0/en/) |
 
 # **About the Author**
 
