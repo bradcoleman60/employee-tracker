@@ -53,6 +53,7 @@ function askquestion() {
     else eval(SQLStatement + '();');
   }
   )}
+
 //Add function to take in user input from Inquirer to add a new department 
 function addDepartmentQuest() {
   inquirer
@@ -67,6 +68,9 @@ function addDepartmentQuest() {
     });
 }
 var DepartmentArray =[]
+var ManagerArray =[]
+var roleArray = []
+
 
 function getTHEchoice (){
   connection.query({sql: 'SELECT name FROM department', rowsAsArray: true},function (err, results, fields) {
@@ -76,13 +80,47 @@ function getTHEchoice (){
     }
 
     DepartmentArray = results.flat(1)
-  
+    // console.log(DepartmentArray)
+
     return DepartmentArray
   })
 
-}
+  }
+
+function getManagerChoices (){
+
+  connection.query({sql: 'SELECT CONCAT(first_name, " ", last_name, " (id:",id, ")") FROM employee_cms.employee', rowsAsArray: true},function (err, results, fields) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    ManagerArray = results.flat(1)
+    // console.log(ManagerArray)
+    return ManagerArray
+  })
+}  
+
+function getRoleChoices (){
+
+  connection.query({sql: 'SELECT CONCAT(title, " (id:",id, ")") FROM employee_cms.role', rowsAsArray: true},function (err, results, fields) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    roleArray = results.flat(1)
+    // console.log(ManagerArray)
+    return roleArray
+  })
+}  
+
 
 getTHEchoice()
+getManagerChoices()
+getRoleChoices()
+
+
 
 function addRoleQuest() {
 
@@ -117,7 +155,7 @@ function addRoleQuest() {
 }
 
 //Function to Add new Employee
-function addNewEmployeeQuest(queryStatement) {
+function addNewEmployeeQuest() {
   inquirer
     .prompt([
       {
@@ -131,22 +169,30 @@ function addNewEmployeeQuest(queryStatement) {
         message: "Enter the Last name of the new employee",
       },
       {
-        type: "item",
+        type: "list",
         name: "employeeRole",
         message: "Enter the role ID for this employee",
+        choices: roleArray
       },
       {
-        type: "item",
+        type: "list",
         name: "employeeManager",
-        message: "Enter the new employee's manager's ID",
+        message: "Enter the new employee's managers name",
+        choices: ManagerArray
       },
     ])
     .then((answers) => {
+      var managerString = answers.employeeManager
+      var managerID = parseInt(managerString.slice(managerString.indexOf("(")+4, managerString.length-1))
+
+      var roleString = answers.employeeRole
+      var roleID = parseInt(roleString.slice(roleString.indexOf("(")+4, roleString.length-1))
+     
       sqlAction.addEmployee(
         answers.firstName,
         answers.lastName,
-        answers.employeeRole,
-        answers.employeeManager
+        roleID,
+        managerID
       );
       askquestion();
     });
@@ -197,6 +243,5 @@ function quit() {
   connection.end();
   console.log("Thanks for using the Employee CMS System");
 }
-
 
 
